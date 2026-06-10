@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DO NOT OPEN</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: black;
+            color: red;
+            font-family: 'Creepster', sans-serif;
+            overflow: hidden;
+            text-align: center;
+        }
+        #warning {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2em;
+            text-shadow: 0 0 10px red;
+            z-index: 1;
+        }
+        #scare {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://picsum.photos/id/1015/1920/1080') no-repeat center center/cover; /* Placeholder, replace with scary */
+            display: none;
+            z-index: 10;
+            filter: contrast(200%) brightness(150%) saturate(200%);
+            animation: flash 0.1s infinite alternate;
+        }
+        @keyframes flash {
+            from { filter: contrast(150%) brightness(100%) saturate(100%) hue-rotate(0deg); }
+            to { filter: contrast(300%) brightness(200%) saturate(300%) hue-rotate(30deg); }
+        }
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            z-index: 11;
+            animation: flicker 0.05s infinite alternate;
+        }
+        @keyframes flicker {
+            0% { opacity: 0.7; }
+            100% { opacity: 0.9; }
+        }
+        audio {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="warning">You shouldn't have opened this...</div>
+    <div id="scare"></div>
+    <div id="overlay"></div>
+    <audio id="sound" autoplay loop>
+        <!-- Use a public scary sound URL or base64 if possible, but for demo: -->
+        <source src="https://assets.mixkit.co/sfx/preview/2964/2964-preview.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // Replace with actual scary image URL if needed
+        const scareImg = 'https://i.pinimg.com/236x/27/3b/e4/273be4428222fede75034d3675babd8a.jpg'; // Placeholder, but for scary use creepy demon face or change to real one like https://i.imgur.com/ScaryImage.jpg but using high contrast horror
+        document.getElementById('scare').style.backgroundImage = `url('${scareImg}')`;
+
+        let triggered = false;
+
+        function triggerJumpscare() {
+            if (triggered) return;
+            triggered = true;
+            document.getElementById('warning').style.display = 'none';
+            const scare = document.getElementById('scare');
+            const overlay = document.getElementById('overlay');
+            const audio = document.getElementById('sound');
+            
+            scare.style.display = 'block';
+            overlay.style.display = 'block';
+            
+            // Play sound loudly - multiple attempts for reliability
+            audio.volume = 1.0;
+            audio.loop = true;
+            const playSound = () => {
+                audio.play().then(() => {
+                    console.log('SCREAM ACTIVATED');
+                }).catch(e => {
+                    console.log('Autoplay blocked - click anywhere');
+                    document.addEventListener('click', () => audio.play(), {once: true});
+                });
+            };
+            playSound();
+            // Extra loud burst
+            setTimeout(() => { if (audio) audio.volume = 1; }, 100);
+            
+            // Rapid contrast changes
+            let contrastLevel = 150;
+            const interval = setInterval(() => {
+                contrastLevel = contrastLevel === 150 ? 300 : 150;
+                scare.style.filter = `contrast(${contrastLevel}%) brightness(180%) saturate(250%)`;
+            }, 80);
+            
+            // Add shaking effect
+            let shakeCount = 0;
+            const shake = setInterval(() => {
+                const x = Math.random() * 20 - 10;
+                const y = Math.random() * 20 - 10;
+                scare.style.transform = `translate(${x}px, ${y}px)`;
+                shakeCount++;
+                if (shakeCount > 30) {
+                    clearInterval(shake);
+                    clearInterval(interval);
+                }
+            }, 50);
+            
+            // Auto close or loop scare
+            setTimeout(() => {
+                // Keep it going or reset
+            }, 5000);
+        }
+
+        // Trigger after delay
+        setTimeout(triggerJumpscare, 1500);
+        
+        // Or on any interaction
+        document.addEventListener('click', () => {
+            if (!triggered) triggerJumpscare();
+        });
+        
+        // Fullscreen scary
+        console.log('%cTHE DARKNESS IS HERE', 'color: red; font-size: 50px;');
+    </script>
+</body>
+</html>
